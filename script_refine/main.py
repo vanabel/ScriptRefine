@@ -27,19 +27,7 @@ class ScriptRefiner:
         load_dotenv()
         
         # 加载配置
-        if config_path and os.path.exists(config_path):
-            with open(config_path, 'r', encoding='utf-8') as f:
-                self.config = yaml.safe_load(f)
-        else:
-            # 使用默认配置
-            default_config_path = os.path.join(
-                os.path.dirname(__file__), "..", "config.yaml"
-            )
-            if os.path.exists(default_config_path):
-                with open(default_config_path, 'r', encoding='utf-8') as f:
-                    self.config = yaml.safe_load(f)
-            else:
-                raise FileNotFoundError("未找到配置文件")
+        self.config = self._load_config(config_path)
         
         # 初始化组件
         self.llm = create_llm(self.config.get("llm", {}))
@@ -63,6 +51,38 @@ class ScriptRefiner:
             "max_tokens": self.config.get("llm", {}).get("online", {}).get("max_tokens", 4000),
         })
         self.exporter = DocumentExporter(self.config.get("output", {}))
+
+    def _load_config(self, config_path: Optional[str]) -> Dict:
+        """
+        按优先级加载配置文件：
+        1. 显式传入的 config_path
+        2. 项目根目录下的 config_local.yaml
+        3. 项目根目录下的 config.yaml（兼容旧版本）
+        4. 项目根目录下的 config.yaml.example（仅作为示例 / 回退）
+        """
+        # 如果显式传入了路径，优先使用
+        candidates = []
+        if config_path:
+            candidates.append(config_path)
+
+        root_dir = os.path.join(os.path.dirname(__file__), "..")
+        candidates.extend([
+            os.path.join(root_dir, "config_local.yaml"),
+            os.path.join(root_dir, "config.yaml"),          # 兼容旧项目
+            os.path.join(root_dir, "config.yaml.example"),  # 示例 / 回退
+        ])
+
+        for path in candidates:
+            if path and os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    cfg = yaml.safe_load(f)
+                print(f"📂 使用配置文件: {path}")
+                return cfg or {}
+
+        raise FileNotFoundError(
+            "未找到配置文件，请创建 config_local.yaml，或提供 --config 参数，"
+            "或者复制 config.yaml.example 为 config_local.yaml 后再修改。"
+        )
     
     def process(
         self,
