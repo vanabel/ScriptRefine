@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语稿智能整理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 语稿智能整理系统</h1>
+            <p class="subtitle">自动将语音识别文本转换为高质量、结构化、可存档的正式文稿</p>
+        </header>
+
+        <main>
+            <!-- 输入区域 -->
+            <section class="input-section">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="text">文本输入</button>
+                    <button class="tab-btn" data-tab="upload">文件上传</button>
+                </div>
+
+                <!-- 文本输入 -->
+                <div class="tab-content active" id="text-tab">
+                    <div class="input-group">
+                        <label for="input-text">输入文本内容：</label>
+                        <textarea 
+                            id="input-text" 
+                            placeholder="请粘贴或输入语音识别文本..."
+                            rows="15"
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="char-count">0</span> 字符
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文件上传 -->
+                <div class="tab-content" id="upload-tab">
+                    <div class="input-group">
+                        <label for="file-input">选择文件（支持 .txt, .md）：</label>
+                        <div class="file-upload-area" id="file-upload-area">
+                            <input type="file" id="file-input" accept=".txt,.md,.text" hidden>
+                            <div class="upload-placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p>点击选择文件或拖拽文件到此处</p>
+                                <p class="file-hint">支持 .txt, .md 格式</p>
+                            </div>
+                            <div class="file-info" id="file-info" style="display: none;">
+                                <span id="file-name"></span>
+                                <button class="remove-file" id="remove-file">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处理选项 -->
+                <div class="options-group">
+                    <label for="process-mode">处理模式：</label>
+                    <select id="process-mode">
+                        <option value="full">完整版（逐句重写）</option>
+                        <option value="summary">会议纪要（结构化摘要）</option>
+                        <option value="both">两者都生成</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="process-btn">
+                    <span class="btn-text">开始处理</span>
+                    <span class="btn-loading" style="display: none;">处理中...</span>
+                </button>
+            </section>
+
+            <!-- 输出区域 -->
+            <section class="output-section" id="output-section" style="display: none;">
+                <div class="output-header">
+                    <h2>处理结果</h2>
+                    <button class="btn btn-secondary" id="clear-btn">清空</button>
+                </div>
+
+                <div class="output-tabs" id="output-tabs"></div>
+                <div class="output-content" id="output-content"></div>
+
+                <!-- 下载按钮 -->
+                <div class="download-section" id="download-section">
+                    <h3>下载文档</h3>
+                    <div class="download-buttons" id="download-buttons"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 语稿智能整理系统 | 支持本地和在线 LLM</p>
+        </footer>
+    </div>
+
+    <!-- 加载提示 -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>正在处理，请稍候...</p>
+    </div>
+
+    <!-- 错误提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,85 @@
+# 语稿智能整理系统配置文件
+
+# LLM 配置
+llm:
+  # 模型类型: local 或 online
+  type: "online"
+  
+  # 在线模型配置
+  online:
+    provider: "siliconflow"  # openai, deepseek, qianwen, zhipu, anthropic, siliconflow
+    model: "deepseek-ai/DeepSeek-V3"  # SiliconFlow 模型名称（完整路径）
+    api_key: "REDACTED_KEY"  # 从环境变量 SILICONFLOW_API_KEY 或此处读取
+    base_url: "https://api.siliconflow.cn/v1"  # SiliconFlow API 地址（会自动添加 /v1 如果缺失）
+    temperature: 0.7  # 生成温度，0-1，值越大越随机
+    max_tokens: 8192  # 最大生成 token 数
+    
+  # 本地模型配置
+  local:
+    provider: "ollama"  # ollama, qwen2.5, llama, chatglm, hermes
+    model_name: "qwen3:8b"  # Ollama 模型名称（如 qwen3:8b）
+    model_path: ""  # 本地模型路径（使用 transformers 时）
+    ollama_base_url: "http://localhost:11434"  # Ollama API 地址
+    device: "auto"  # auto, cuda, cpu（仅用于 transformers）
+    max_length: 4096
+
+# 文本处理配置
+text_processing:
+  # 文本清洗
+  cleaning:
+    remove_filler_words: true  # 去除语气词
+    merge_broken_sentences: true  # 合并断句
+    remove_duplicates: true  # 去除重复
+    fix_encoding: true  # 修复乱码
+    remove_llm_reasoning: true  # 移除 LLM 推理标记（如 <think>...</think>, <think>...</think>）
+    
+  # 切片配置
+  chunking:
+    max_tokens: 3000  # 每个分片的 token 限制
+    overlap: 500  # 分片重叠 token 数（增加以确保上下文连续性）
+    preserve_speakers: true  # 保持讲话人结构
+    min_chunk_size: 100  # 最小切片大小（避免过小的切片）
+    use_chinese_segmentation: true  # 使用中文分词（jieba）避免在词中间断开
+    
+  # 讲话人识别
+  speaker_detection:
+    enabled: true
+    patterns:
+      - "【.*?】"
+      - ".*?:"
+      - "^[A-Z].*?:"
+
+# 输出配置
+output:
+  formats: ["markdown", "docx", "pdf"]  # 支持格式
+  output_dir: "./output"
+  # 完整版配置
+  full_version:
+    filename_template: "完整版_{timestamp}.md"
+    include_speakers: true
+    formal_style: true
+  # 会议纪要版配置
+  summary_version:
+    filename_template: "会议纪要_{timestamp}.md"
+    structure:
+      - "会议背景"
+      - "主要议题"
+      - "双方主要观点"
+      - "达成共识与行动计划"
+      - "后续工作安排"
+
+# 提示词配置（可在 prompts/ 目录下自定义）
+prompts:
+  rewrite_prompt: "prompts/rewrite.txt"
+  summary_prompt: "prompts/summary.txt"
+  cleaning_prompt: "prompts/cleaning.txt"
+
+# 日志配置
+logging:
+  enabled: true  # 是否启用详细日志
+  level: "DEBUG"  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  output_to_console: true  # 输出到控制台
+  output_to_file: true  # 输出到文件
+  log_dir: "./logs"  # 日志目录
+  log_chunks: true  # 记录分片信息（原始分片、提示词、输出结果）
+  log_file_template: "process_{timestamp}.log"  # 日志文件名模板

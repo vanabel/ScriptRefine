@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 配置文件（包含敏感信息）
+config_local.yaml
+.env
+*.key
+
+# 输出文件（仅忽略输出目录中的文档，不忽略仓库中的说明文档）
+output/
+output/**/*.docx
+output/**/*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 模型文件
+models/
+*.bin
+*.safetensors
+
+# 日志
+*.log
+logs/
+# 但保留日志目录结构
+!logs/.gitkeep
+

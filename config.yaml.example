@@ -1,0 +1,80 @@
+# 语稿智能整理系统配置文件示例
+# 复制此文件为 config.yaml 并根据需要修改
+
+# LLM 配置
+llm:
+  # 模型类型: local 或 online
+  type: "online"  # 或 "local"
+  
+  # 在线模型配置（当 type: "online" 时使用）
+  online:
+    provider: "openai"  # 可选: openai, deepseek, qianwen, zhipu, anthropic, siliconflow
+    model: "gpt-4-turbo-preview"  # 模型名称
+    api_key: ""  # API 密钥（建议使用环境变量，如 OPENAI_API_KEY）
+    base_url: ""  # 可选，用于自定义 API 端点（如代理服务器）
+    temperature: 0.3  # 生成温度，0-1，值越大越随机
+    max_tokens: 4000  # 最大生成 token 数
+    
+    # SiliconFlow 配置示例
+    # provider: "siliconflow"
+    # model: "deepseek-ai/DeepSeek-V3"
+    # api_key: "your-api-key"
+    # base_url: "https://api.siliconflow.cn/v1"  # 会自动添加 /v1 如果缺失
+    
+  # 本地模型配置（当 type: "local" 时使用）
+  local:
+    provider: "ollama"  # 可选: ollama, qwen2.5, llama, chatglm, hermes
+    model_name: "qwen3:8b"  # Ollama 模型名称（使用 ollama 时）
+    model_path: ""  # 本地模型路径（使用 transformers 时）
+    ollama_base_url: "http://localhost:11434"  # Ollama API 地址
+    device: "auto"  # auto, cuda, cpu（仅用于 transformers）
+    max_length: 4096
+
+# 文本处理配置
+text_processing:
+  # 文本清洗
+  cleaning:
+    remove_filler_words: true  # 去除语气词
+    merge_broken_sentences: true  # 合并断句
+    remove_duplicates: true  # 去除重复
+    fix_encoding: true  # 修复乱码
+    
+  # 切片配置
+  chunking:
+    max_tokens: 3000  # 每个分片的 token 限制
+    overlap: 200  # 分片重叠 token 数
+    preserve_speakers: true  # 保持讲话人结构
+    
+  # 讲话人识别
+  speaker_detection:
+    enabled: true
+    patterns:
+      - "【.*?】"
+      - ".*?:"
+      - "^[A-Z].*?:"
+
+# 输出配置
+output:
+  formats: ["markdown", "docx", "pdf"]  # 支持格式
+  output_dir: "./output"
+  # 完整版配置
+  full_version:
+    filename_template: "完整版_{timestamp}.md"
+    include_speakers: true
+    formal_style: true
+  # 会议纪要版配置
+  summary_version:
+    filename_template: "会议纪要_{timestamp}.md"
+    structure:
+      - "会议背景"
+      - "主要议题"
+      - "双方主要观点"
+      - "达成共识与行动计划"
+      - "后续工作安排"
+
+# 提示词配置（可在 prompts/ 目录下自定义）
+prompts:
+  rewrite_prompt: "prompts/rewrite.txt"
+  summary_prompt: "prompts/summary.txt"
+  cleaning_prompt: "prompts/cleaning.txt"
+
